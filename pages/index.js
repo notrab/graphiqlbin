@@ -1,6 +1,7 @@
 import React from "react";
 import { gql, rawRequest } from "graphql-request";
 import { isUri } from "valid-url";
+import throttle from "lodash.throttle";
 
 import CustomGraphiQL from "../components/CustomGraphiQL";
 
@@ -14,14 +15,23 @@ const query = gql`
   }
 `;
 
+const welcomeQuery = `# Welcome to GraphiQLBin!
+#
+# You can use this hosted GraphiQL to share queries with others.
+# 
+# Write your query, click "Share Query", and share your URL!
+`;
+
 export default function IndexPage() {
   const [endpoint, setEndpoint] = React.useState("");
   const [valid, setValid] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
 
-  React.useEffect(() => {
-    async function checkEndpoint(endpoint) {
-      if (isUri(endpoint)) {
+  React.useEffect(
+    throttle(() => {
+      async function checkEndpoint(endpoint) {
+        if (!isUri(endpoint)) return setValid(false);
+
         try {
           const { status } = await rawRequest(endpoint, query);
 
@@ -30,31 +40,50 @@ export default function IndexPage() {
           setValid(false);
         }
       }
-    }
 
-    checkEndpoint(endpoint);
-  }, [endpoint]);
+      checkEndpoint(endpoint);
+    }, 500),
+    [endpoint]
+  );
 
   if (!submitted)
     return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSubmitted(true);
+      <div
+        className="graphiql-container"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <input
-          type="url"
-          id="url"
-          placeholder="Your GraphQL endpoint"
-          value={endpoint}
-          onChange={({ target: { value } }) => setEndpoint(value)}
-        />
-        <button type="submit" disabled={!valid}>
-          Go
-        </button>
-      </form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            valid && setSubmitted(true);
+          }}
+          style={{ display: "flex" }}
+        >
+          <input
+            type="url"
+            id="url"
+            placeholder="Enter a GraphQL endpoint to create a bin"
+            value={endpoint}
+            onChange={({ target: { value } }) => setEndpoint(value)}
+            style={{
+              width: "450px",
+              padding: "8px",
+              borderRadius: "3px",
+              border: "1px solid #ccc",
+            }}
+          />
+          {valid && (
+            <button className="toolbar-button" type="submit">
+              Open
+            </button>
+          )}
+        </form>
+      </div>
     );
 
-  return <CustomGraphiQL endpoint={endpoint} />;
+  return <CustomGraphiQL endpoint={endpoint} initialQuery={welcomeQuery} />;
 }

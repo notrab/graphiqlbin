@@ -8,6 +8,7 @@ export default function CustomGraphiQL({
   endpoint,
   initialQuery = "",
   initialVariables = "",
+  ...props
 }) {
   const [query, setQuery] = React.useState(initialQuery);
   const [variables, setVariables] = React.useState(initialVariables);
@@ -25,11 +26,11 @@ export default function CustomGraphiQL({
       body: JSON.stringify(query),
     })
       .then((res) => res.json())
-      .catch((res) => res.text());
+      .catch((err) => err);
 
-  const handleSave = async () => {
+  const createBin = async () => {
     try {
-      const { id } = await fetch("/api/save", {
+      const { id } = await fetch("/api/share", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,9 +54,16 @@ export default function CustomGraphiQL({
       headerEditorEnabled={true}
       toolbar={{
         additionalContent: (
-          <GraphiQL.Button label="Share" title="Share" onClick={handleSave} />
+          <GraphiQL.Button
+            label="Share Query"
+            title="Get a link to this query"
+            onClick={createBin}
+          />
         ),
       }}
-    />
+      {...props}
+    >
+      <GraphiQL.Logo>GraphiQL Bin</GraphiQL.Logo>
+    </GraphiQL>
   );
 }
