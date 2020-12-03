@@ -14,24 +14,17 @@ export default function CustomGraphiQL({
 
   const router = useRouter();
 
-  const fetcher = (query) =>
+  const fetcher = (query, { headers }) =>
     fetch(endpoint, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        ...headers,
       },
       body: JSON.stringify(query),
     })
-      .then((res) => res.text())
-      .then((text) => {
-        try {
-          return JSON.parse(text);
-        } catch (err) {
-          console.log(err);
-          return text;
-        }
-      })
+      .then((res) => res.json())
       .catch((res) => res.text());
 
   const handleSave = async () => {
@@ -57,13 +50,10 @@ export default function CustomGraphiQL({
       onEditQuery={(query) => setQuery(query)}
       variables={variables}
       onEditVariables={(variables) => setVariables(variables)}
+      headerEditorEnabled={true}
       toolbar={{
         additionalContent: (
-          <GraphiQL.Button
-            label="Save and Share"
-            title="Save and Share"
-            onClick={handleSave}
-          />
+          <GraphiQL.Button label="Share" title="Share" onClick={handleSave} />
         ),
       }}
     />

@@ -25,8 +25,6 @@ export default function IndexPage() {
         try {
           const { status } = await rawRequest(endpoint, query);
 
-          console.log(status);
-
           setValid(status < 400);
         } catch (err) {
           setValid(false);
