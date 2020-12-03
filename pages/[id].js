@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import { gql } from "graphql-request";
 
 import { graphcms } from "../lib/graphcmsClient";
@@ -47,5 +48,12 @@ export async function getStaticProps({ params }) {
 export default function BinPage({ bin }) {
   if (!bin) return <p>No bin found.</p>;
 
-  return <CustomGraphiQL {...bin} />;
+  return (
+    <React.Fragment>
+      <Head>
+        <title>GraphQLBin &mdash; {bin.endpoint}</title>
+      </Head>
+      <CustomGraphiQL {...bin} />
+    </React.Fragment>
+  );
 }

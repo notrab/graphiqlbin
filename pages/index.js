@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import { gql, rawRequest } from "graphql-request";
 import { isUri } from "valid-url";
 import throttle from "lodash.throttle";
@@ -48,42 +49,54 @@ export default function IndexPage() {
 
   if (!submitted)
     return (
-      <div
-        className="graphiql-container"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            valid && setSubmitted(true);
+      <React.Fragment>
+        <Head>
+          <title>GraphQLBin &mdash; Enter a GraphQL endpoint</title>
+        </Head>
+        <div
+          className="graphiql-container"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          style={{ display: "flex" }}
         >
-          <input
-            type="url"
-            id="url"
-            placeholder="Enter a GraphQL endpoint to create a bin"
-            value={endpoint}
-            onChange={({ target: { value } }) => setEndpoint(value)}
-            style={{
-              width: "450px",
-              padding: "8px",
-              borderRadius: "3px",
-              border: "1px solid #ccc",
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              valid && setSubmitted(true);
             }}
-          />
-          {valid && (
-            <button className="toolbar-button" type="submit">
-              Open
-            </button>
-          )}
-        </form>
-      </div>
+            style={{ display: "flex" }}
+          >
+            <input
+              type="url"
+              id="url"
+              placeholder="Enter a GraphQL endpoint to create a bin"
+              value={endpoint}
+              onChange={({ target: { value } }) => setEndpoint(value)}
+              style={{
+                width: "450px",
+                padding: "8px",
+                borderRadius: "3px",
+                border: "1px solid #ccc",
+              }}
+            />
+            {valid && (
+              <button className="toolbar-button" type="submit">
+                Open
+              </button>
+            )}
+          </form>
+        </div>
+      </React.Fragment>
     );
 
-  return <CustomGraphiQL endpoint={endpoint} initialQuery={welcomeQuery} />;
+  return (
+    <React.Fragment>
+      <Head>
+        <title>GraphQLBin &mdash; {endpoint}</title>
+      </Head>
+      <CustomGraphiQL endpoint={endpoint} initialQuery={welcomeQuery} />
+    </React.Fragment>
+  );
 }

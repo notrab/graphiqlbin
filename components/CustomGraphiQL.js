@@ -52,6 +52,7 @@ export default function CustomGraphiQL({
       variables={variables}
       onEditVariables={(variables) => setVariables(variables)}
       headerEditorEnabled={true}
+      shouldPersistHeaders={true}
       toolbar={{
         additionalContent: (
           <GraphiQL.Button
