@@ -18,6 +18,7 @@ export default function CustomGraphiQL({
   const [query, setQuery] = React.useState(initialQuery);
   const [variables, setVariables] = React.useState(initialVariables);
   const [explorerIsOpen, setExplorerIsOpen] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   const router = useRouter();
 
@@ -26,7 +27,8 @@ export default function CustomGraphiQL({
   React.useEffect(() => {
     async function fetchSchema() {
       try {
-        const { data } = await fetcher({ query: introspectionQuery }, {});
+        const { data } = await fetcher({ query: introspectionQuery });
+
         setSchema(buildClientSchema(data));
       } catch (err) {
         console.log(err);
@@ -38,7 +40,7 @@ export default function CustomGraphiQL({
     }
   }, [endpoint]);
 
-  const fetcher = (query, { headers }) =>
+  const fetcher = (query, { headers } = {}) =>
     fetch(endpoint, {
       method: "POST",
       headers: {
@@ -58,6 +60,8 @@ export default function CustomGraphiQL({
       });
 
   const createBin = async () => {
+    setLoading(true);
+
     try {
       const { id } = await fetch("/api/share", {
         method: "POST",
@@ -70,6 +74,8 @@ export default function CustomGraphiQL({
       router.push(id);
     } catch (err) {
       alert("We could not save your bin. Try again!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,9 +134,10 @@ export default function CustomGraphiQL({
                 title="Toggle Explorer"
               />
               <GraphiQL.Button
-                label="Share Query"
+                label={loading ? "Creating bin..." : "Share Query"}
                 title="Get a link to this query"
                 onClick={createBin}
+                disabled={loading}
               />
             </>
           ),
