@@ -1,8 +1,10 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { buildClientSchema, getIntrospectionQuery } from "graphql";
+import { buildClientSchema, printSchema, getIntrospectionQuery } from "graphql";
 import GraphiQLExplorer from "graphiql-explorer";
 import GraphiQL from "graphiql";
+import prettier from "prettier/standalone";
+import graphqlParser from "prettier/parser-graphql";
 
 import "graphiql/graphiql.css";
 
@@ -19,9 +21,7 @@ export default function CustomGraphiQL({
   const [variables, setVariables] = React.useState(initialVariables);
   const [explorerIsOpen, setExplorerIsOpen] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
-
   const router = useRouter();
-
   const ref = React.useRef();
 
   React.useEffect(() => {
@@ -79,6 +79,35 @@ export default function CustomGraphiQL({
     }
   };
 
+  const downloadSchema = () => {
+    try {
+      const downloadableSchema = prettier.format(printSchema(schema), {
+        parser: "graphql",
+        plugins: [graphqlParser],
+      });
+
+      const element = window.document.createElement("a");
+
+      element.setAttribute(
+        "href",
+        "data:text/plain;charset=utf-8," +
+          encodeURIComponent(downloadableSchema)
+      );
+
+      element.setAttribute("download", "schema.graphql");
+
+      element.style.display = "none";
+      document.body.appendChild(element);
+
+      element.click();
+
+      window.document.body.removeChild(element);
+    } catch (err) {
+      console.log(err);
+      alert("We could not download your schema. Try again!");
+    }
+  };
+
   const storageKey = (endpoint, key) => `${endpoint}:${key}`;
 
   const getItem = (key) =>
@@ -132,6 +161,11 @@ export default function CustomGraphiQL({
                 onClick={handleToggleExplorer}
                 label="Explorer"
                 title="Toggle Explorer"
+              />
+              <GraphiQL.Button
+                onClick={downloadSchema}
+                label="Download schema"
+                title="Download remote schema"
               />
               <GraphiQL.Button
                 label={loading ? "Creating bin..." : "Share Query"}

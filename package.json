@@ -18,6 +18,7 @@
     "graphql-request": "3.3.0",
     "lodash.throttle": "4.1.1",
     "next": "10.0.3",
+    "prettier": "2.2.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "valid-url": "1.0.9"
